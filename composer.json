@@ -1,5 +1,5 @@
 {
-    "name": "awirhosein/rate-limiter",
+    "name": "awirhosein/redis-throttle",
     "authors": [
         {
             "name": "awirhosein",
@@ -17,18 +17,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Awirhosein\\RateLimiter\\": "src/"
+            "Awirhosein\\RedisThrottle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Awirhosein\\RateLimiter\\Tests\\": "tests/"
+            "Awirhosein\\RedisThrottle\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Awirhosein\\RateLimiter\\RateLimiterServiceProvider"
+                "Awirhosein\\RedisThrottle\\RedisThrottleServiceProvider"
             ]
         }
     },

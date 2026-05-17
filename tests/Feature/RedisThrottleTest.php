@@ -1,15 +1,15 @@
 <?php
 
-namespace Awirhosein\RateLimiter\Tests\Feature;
+namespace Awirhosein\RedisThrottle\Tests\Feature;
 
-use Awirhosein\RateLimiter\Tests\Fixtures\User;
-use Awirhosein\RateLimiter\Tests\TestCase;
+use Awirhosein\RedisThrottle\Tests\Fixtures\User;
+use Awirhosein\RedisThrottle\Tests\TestCase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Test;
 
-class RateLimiterTest extends TestCase
+class RedisThrottleTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -70,7 +70,7 @@ class RateLimiterTest extends TestCase
     #[Test]
     public function free_user_is_limited_daily()
     {
-        config(['rate-limiter.free.per_day' => 5]);
+        config(['redis-throttle.free.per_day' => 5]);
 
         $user = User::create(['plan' => 'free']);
         $this->actingAs($user);

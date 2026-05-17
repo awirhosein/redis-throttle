@@ -1,12 +1,12 @@
 <?php
 
-namespace Awirhosein\RateLimiter;
+namespace Awirhosein\RedisThrottle;
 
-use Awirhosein\RateLimiter\Middleware\UploadRateLimiter;
-use Awirhosein\RateLimiter\Middleware\RequestRateLimiter;
+use Awirhosein\RedisThrottle\Middleware\UploadRateLimiter;
+use Awirhosein\RedisThrottle\Middleware\RequestRateLimiter;
 use Illuminate\Support\ServiceProvider;
 
-class RateLimiterServiceProvider extends ServiceProvider
+class RedisThrottleServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
@@ -14,7 +14,7 @@ class RateLimiterServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/rate-limiter.php', 'rate-limiter'
+            __DIR__ . '/../config/redis-throttle.php', 'redis-throttle'
         );
     }
 

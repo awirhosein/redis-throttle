@@ -1,6 +1,6 @@
 <?php
 
-namespace Awirhosein\RateLimiter\Tests\Fixtures;
+namespace Awirhosein\RedisThrottle\Tests\Fixtures;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 

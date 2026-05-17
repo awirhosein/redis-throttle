@@ -1,6 +1,6 @@
 <?php
 
-namespace Awirhosein\RateLimiter\Services;
+namespace Awirhosein\RedisThrottle\Services;
 
 use Illuminate\Http\Request;
 
@@ -16,7 +16,7 @@ class RateLimitService
         $plan = $this->getPlan();
         $userId = $this->getUserId($request);
         $endpoint = $request->path();
-        $limit = config("rate-limiter.$plan.per_$period");
+        $limit = config("redis-throttle.$plan.per_$period");
 
         [$ttl, $expireAt] = $this->getPeriodConfig($period);
 
@@ -35,7 +35,7 @@ class RateLimitService
             return new RateLimitResult(allowed: true);
         }
 
-        $limit = config('rate-limiter.free.file_size');
+        $limit = config('redis-throttle.free.file_size');
         $key = $this->buildKey($userId, $plan, 'file_size');
         $fileSize = $this->getTotalFileSize($request->allFiles());
         $expireAt = now()->addDay()->startOfDay()->timestamp;

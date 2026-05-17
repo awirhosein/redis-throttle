@@ -1,6 +1,6 @@
 <?php
 
-namespace Awirhosein\RateLimiter\Services;
+namespace Awirhosein\RedisThrottle\Services;
 
 use Illuminate\Http\JsonResponse;
 

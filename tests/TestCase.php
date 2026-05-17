@@ -1,8 +1,8 @@
 <?php
 
-namespace Awirhosein\RateLimiter\Tests;
+namespace Awirhosein\RedisThrottle\Tests;
 
-use Awirhosein\RateLimiter\RateLimiterServiceProvider;
+use Awirhosein\RedisThrottle\RedisThrottleServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -10,7 +10,7 @@ abstract class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
-            RateLimiterServiceProvider::class,
+            RedisThrottleServiceProvider::class,
         ];
     }
 

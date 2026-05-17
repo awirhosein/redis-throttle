@@ -1,8 +1,8 @@
 <?php
 
-namespace Awirhosein\RateLimiter\Middleware;
+namespace Awirhosein\RedisThrottle\Middleware;
 
-use Awirhosein\RateLimiter\Services\RateLimitService;
+use Awirhosein\RedisThrottle\Services\RateLimitService;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
