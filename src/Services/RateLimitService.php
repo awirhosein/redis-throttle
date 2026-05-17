@@ -3,10 +3,14 @@
 namespace Awirhosein\RateLimiter\Services;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redis;
 
 class RateLimitService
 {
+    public function __construct(
+        private RateLimitStore $store
+    ) {
+    }
+
     public function checkRequest(Request $request, string $period): RateLimitResult
     {
         $plan = $this->getPlan();
@@ -16,29 +20,27 @@ class RateLimitService
 
         [$ttl, $expireAt] = $this->getPeriodConfig($period);
 
-        $key = "ratelimit:{$userId}:{$plan}:{$period}:{$endpoint}";
-        $current = $this->increment($key, 1, $ttl, $expireAt);
+        $key = $this->buildKey($userId, $plan, $period, $endpoint);
+        $current = $this->store->increment($key, 1, $ttl, $expireAt);
 
         return $this->buildResult($current, $limit, $key);
     }
 
     public function checkFile(Request $request): RateLimitResult
     {
-        // TODO: dynamic file name
-
         $plan = $this->getPlan();
         $userId = $this->getUserId($request);
 
-        if (! $request->hasFile('image') || $plan != 'free') {
+        if (empty($request->allFiles()) || $plan != 'free') {
             return new RateLimitResult(allowed: true);
         }
 
         $limit = config('rate-limiter.free.file_size');
-        $key = "ratelimit:{$userId}:{$plan}:file_size";
-        $fileSize = $request->file('image')->getSize();
+        $key = $this->buildKey($userId, $plan, 'file_size');
+        $fileSize = $this->getTotalFileSize($request->allFiles());
         $expireAt = now()->addDay()->startOfDay()->timestamp;
 
-        $currentBytes = $this->increment($key, $fileSize, 0, $expireAt);
+        $currentBytes = $this->store->increment($key, $fileSize, 0, $expireAt);
         $currentMb = $currentBytes / (1024 * 1024);
 
         return $this->buildResult($currentMb, $limit, $key);
@@ -46,37 +48,40 @@ class RateLimitService
 
     private function getPlan(): string
     {
-        return auth()->user()->plan ?? 'free';
+        return auth()->user()?->plan ?? 'free';
     }
 
-    private function getUserId(Request $request)
+    private function getUserId(Request $request): string
     {
-        return auth()->user()->id ?? $request->ip();
+        return auth()->user()?->id ?? $request->ip();
+    }
+
+    private function getTotalFileSize(array $files): int
+    {
+        $size = 0;
+
+        foreach ($files as $file) {
+            $size += $file->getSize();
+        }
+
+        return $size;
     }
 
     private function getPeriodConfig(string $period): array
     {
         return match ($period) {
-            'hour' => [3600, null],
+            'minute' => [60, null],
             'day' => [0, now()->addDay()->startOfDay()->timestamp],
-            'month' => [0, now()->addMonth()->startOfDay()->timestamp],
-            default => [60, null],
+            default => throw new \InvalidArgumentException("Unsupported period [$period]")
         };
     }
 
-    private function increment(string $key, int $value = 1, int $ttl = 60, ?int $expireAt = null): int
+    private function buildKey(...$args): string
     {
-        $current = Redis::incrBy($key, $value);
-
-        if ($current === $value) {
-            if ($expireAt) {
-                Redis::expireAt($key, $expireAt);
-            } else {
-                Redis::expire($key, $ttl);
-            }
-        }
-
-        return $current;
+        return implode(':', [
+            'ratelimit',
+            ...$args,
+        ]);
     }
 
     private function buildResult(int $current, int $limit, string $key): RateLimitResult
@@ -86,8 +91,8 @@ class RateLimitService
             key: $key,
             limit: $limit,
             remaining: max(0, $limit - $current),
-            resetAt: time() + Redis::ttl($key),
-            retryAfter: Redis::ttl($key)
+            resetAt: time() + $this->store->ttl($key),
+            retryAfter: $this->store->ttl($key)
         );
     }
 }
